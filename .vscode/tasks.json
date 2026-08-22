@@ -1,0 +1,40 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "typecheck",
+      "problemMatcher": "$tsc",
+      "label": "npm: typecheck",
+      "detail": "tsc --noEmit sul plugin"
+    },
+    {
+      "type": "npm",
+      "script": "install",
+      "problemMatcher": [],
+      "label": "npm: install (paseo daemon)",
+      "detail": "Installa il plugin nel daemon Paseo locale (paseo plugin install .)"
+    },
+    {
+      "type": "npm",
+      "script": "reload",
+      "problemMatcher": [],
+      "label": "npm: reload (paseo daemon)",
+      "detail": "Ricompila e ricarica opencode-usage-paseo (da usare dopo modifiche al sorgente)"
+    },
+    {
+      "type": "npm",
+      "script": "logs",
+      "problemMatcher": [],
+      "label": "npm: logs (paseo daemon)",
+      "detail": "Mostra i log recenti del plugin"
+    },
+    {
+      "type": "npm",
+      "script": "remove",
+      "problemMatcher": [],
+      "label": "npm: remove (paseo daemon)",
+      "detail": "Rimuove la configurazione del plugin dal daemon (non cancella i sorgenti)"
+    }
+  ]
+}
