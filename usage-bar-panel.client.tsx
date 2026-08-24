@@ -1,7 +1,7 @@
 import { type PluginWorkspacePanelProps } from "@getpaseo/plugin";
 import { useMemo } from "react";
 import { Text, View } from "react-native";
-import { useUsageQuery } from "./usage.client";
+import { useConfigQuery, useUsageQuery } from "./usage.client";
 
 const short = (label: string) => label.split(/\s+/)[0]?.charAt(0).toUpperCase() ?? "?";
 
@@ -11,7 +11,13 @@ const short = (label: string) => label.split(/\s+/)[0]?.charAt(0).toUpperCase() 
  * the plugin API currently offers.
  */
 export function UsageBarPanel({ theme, layout }: PluginWorkspacePanelProps) {
-  const usageQuery = useUsageQuery();
+  const configQuery = useConfigQuery();
+  const accounts = configQuery.data?.accounts ?? [];
+  const activeAccountId = configQuery.data?.activeAccountId ?? "";
+  const activeName =
+    accounts.find((a) => a.id === activeAccountId)?.name ?? "";
+  const usageQuery = useUsageQuery(activeAccountId);
+
   const styles = useMemo(
     () => ({
       bar: {
@@ -25,6 +31,7 @@ export function UsageBarPanel({ theme, layout }: PluginWorkspacePanelProps) {
       text: { color: theme.colors.foreground, fontSize: 13, fontWeight: "500" as const },
       muted: { color: theme.colors.foregroundMuted, fontSize: 12 },
       error: { color: theme.colors.statusDanger, fontSize: 12 },
+      zen: { color: theme.colors.foreground, fontSize: 13, fontWeight: "700" as const },
     }),
     [theme, layout.compact]
   );
@@ -45,10 +52,14 @@ export function UsageBarPanel({ theme, layout }: PluginWorkspacePanelProps) {
     );
   }
 
-  const line = data.items.map((item) => `${short(item.label)} ${item.percent}%`).join(" · ");
+  const parts: string[] = [];
+  if (accounts.length > 1 && activeName) parts.push(activeName);
+  parts.push(data.items.map((item) => `${short(item.label)} ${item.percent}%`).join(" · "));
+  if (typeof data.zenBalance === "number") parts.push(`Zen $${data.zenBalance.toFixed(2)}`);
+
   return (
     <View style={styles.bar}>
-      <Text style={styles.text}>{line}</Text>
+      <Text style={styles.text}>{parts.join(" — ")}</Text>
       {data.updatedAt ? (
         <Text style={styles.muted}>{new Date(data.updatedAt).toLocaleTimeString()}</Text>
       ) : null}

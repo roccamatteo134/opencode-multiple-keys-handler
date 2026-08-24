@@ -1,13 +1,33 @@
 import type { PluginContext } from "@getpaseo/plugin";
-import { fetchUsage, getConfig, saveConfig } from "./usage.server";
-import { usageConfigGet, usageConfigSave, usageGet } from "./usage.shared";
+import {
+  deleteAccount,
+  fetchUsage,
+  getConfig,
+  getKeyStatus,
+  saveAccount,
+  setActiveAccount,
+  switchActiveKey,
+} from "./usage.server";
+import {
+  usageAccountActivate,
+  usageAccountDelete,
+  usageAccountSave,
+  usageConfigGet,
+  usageGet,
+  usageKeyStatus,
+  usageKeySwitch,
+} from "./usage.shared";
 import { UsageSurface } from "./usage.client";
 import { UsageBarPanel } from "./usage-bar-panel.client";
 
 export default function contribute(plugin: PluginContext) {
   plugin.handle(usageGet, fetchUsage);
   plugin.handle(usageConfigGet, getConfig);
-  plugin.handle(usageConfigSave, saveConfig);
+  plugin.handle(usageAccountSave, saveAccount);
+  plugin.handle(usageAccountDelete, deleteAccount);
+  plugin.handle(usageAccountActivate, setActiveAccount);
+  plugin.handle(usageKeyStatus, getKeyStatus);
+  plugin.handle(usageKeySwitch, switchActiveKey);
 
   plugin.addSurface("usage", UsageSurface);
   plugin.addSidebarItem({
