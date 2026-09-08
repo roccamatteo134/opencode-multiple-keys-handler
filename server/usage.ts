@@ -15,7 +15,7 @@ import type {
   UsageKeyStatusOutput,
   UsageKeySwitchInput,
   UsageKeySwitchOutput,
-} from "./usage.shared";
+} from "../shared/usage";
 
 interface StoredAccount {
   id: string;

@@ -1,7 +1,7 @@
-import { type PluginWorkspacePanelProps } from "@getpaseo/plugin";
+import { type PluginWorkspacePanelProps } from "@getpaseo/plugin/client";
 import { useMemo } from "react";
 import { Text, View } from "react-native";
-import { useConfigQuery, useUsageQuery } from "./usage.client";
+import { useConfigQuery, useUsageQuery } from "./usage";
 
 const short = (label: string) => label.split(/\s+/)[0]?.charAt(0).toUpperCase() ?? "?";
 

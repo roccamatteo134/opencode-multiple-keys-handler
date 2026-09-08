@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { type PluginSurfaceProps, useRpc } from "@getpaseo/plugin";
+import { type PluginSurfaceProps, useRpc } from "@getpaseo/plugin/client";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View, type ViewStyle } from "react-native";
 import {
@@ -12,7 +12,7 @@ import {
   usageKeySwitch,
   type Account,
   type UsageItem,
-} from "./usage.shared";
+} from "../shared/usage";
 
 const CACHE_KEY = ["opencode-usage"];
 

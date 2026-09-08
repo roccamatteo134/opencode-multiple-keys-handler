@@ -117,12 +117,12 @@ npm run remove             # rimuove la config dal daemon (non tocca i sorgenti)
 
 | File                        | Contenuto                                            |
 | --------------------------- | ---------------------------------------------------- |
-| `index.ts`                  | Registrazione contributi (surface, pannello, comandi, RPC) |
-| `usage.shared.ts`           | Contratti RPC zod + tipi                              |
-| `usage.server.ts`           | Backend: config multi-account, endpoint ufficiale `/zen/go/v1/usage`, saldo Zen |
-| `usage.client.tsx`          | Surface con selettore account, barre di progresso, saldo Zen, form account |
-| `usage-bar-panel.client.tsx`| Pannello compatto a una riga (per split in basso)      |
-| `paseo-plugin.d.ts`         | Tipi `@getpaseo/plugin`/`server` generati dal CLI      |
+| `index.client.tsx`          | Registrazione contributi UI (surface, pannello, comandi) |
+| `index.server.ts`           | Registrazione handler RPC                            |
+| `shared/usage.ts`           | Contratti RPC zod + tipi                              |
+| `server/usage.ts`           | Backend: config multi-account, endpoint ufficiale `/zen/go/v1/usage`, saldo Zen |
+| `client/usage.tsx`          | Surface con selettore account, barre di progresso, saldo Zen, form account |
+| `client/usage-bar-panel.tsx`| Pannello compatto a una riga (per split in basso)      |
 
 ## Limitazioni
 
