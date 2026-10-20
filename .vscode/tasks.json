@@ -20,7 +20,7 @@
       "script": "reload",
       "problemMatcher": [],
       "label": "npm: reload (paseo daemon)",
-      "detail": "Ricompila e ricarica opencode-usage-paseo (da usare dopo modifiche al sorgente)"
+      "detail": "Ricompila e ricarica opencode-keys-handler (da usare dopo modifiche al sorgente)"
     },
     {
       "type": "npm",

@@ -87,7 +87,7 @@ function Show-Status {
   Write-Host ("Key attiva in auth.json (opencode-go): {0}" -f (Mask-Key $active))
   if ($keyed.Count -eq 0) {
     Write-Host "Nessuna API key configurata negli account dell'estensione."
-    Write-Host "Configura almeno un account con API key dal pannello OpenCode Usage."
+    Write-Host "Configura almeno una key dal pannello OpenCode Keys Handler."
     return
   }
   for ($i = 0; $i -lt $keyed.Count; $i++) {
@@ -123,7 +123,7 @@ USO:
   switch-opencode-key status         mostra quale key e' attiva
   switch-opencode-key to 1|2         attiva la key dell'account N
 
-Le key sono quelle degli account configurati nell'estensione
+    Le key sono quelle configurate nel plugin OpenCode Keys Handler
 (~/.paseo/opencode-usage.json); auth.json (opencode-go) viene riscritto.
 Le sessioni gia' aperte non rileggono la key: riavvia opencode o il daemon Paseo.
 "@

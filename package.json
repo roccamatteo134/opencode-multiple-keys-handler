@@ -1,13 +1,13 @@
 {
-  "name": "opencode-usage-paseo",
+  "name": "opencode-keys-handler",
   "private": true,
   "version": "0.0.0",
   "scripts": {
     "typecheck": "tsc --noEmit",
     "install": "node scripts/install.mjs",
-    "reload": "paseo plugin reload opencode-usage-paseo",
-    "logs": "paseo plugin logs opencode-usage-paseo",
-    "remove": "paseo plugin remove opencode-usage-paseo"
+    "reload": "paseo plugin reload opencode-keys-handler",
+    "logs": "paseo plugin logs opencode-keys-handler",
+    "remove": "paseo plugin remove opencode-keys-handler"
   },
   "devDependencies": {
     "@getpaseo/client": "0.8.0-beta.1",

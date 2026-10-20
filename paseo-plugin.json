@@ -1,4 +1,4 @@
 {
-  "id": "opencode-usage-paseo",
+  "id": "opencode-keys-handler",
   "requirements": { "paseo": ">=0.8.0" }
 }

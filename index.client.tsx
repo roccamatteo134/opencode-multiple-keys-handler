@@ -1,43 +1,23 @@
 import type { PluginClientContext } from "@getpaseo/plugin/client";
-import { UsageSurface } from "./client/usage";
-import { UsageBarPanel } from "./client/usage-bar-panel";
+import { KeysSurface } from "./client/keys";
 
 export default function contribute(client: PluginClientContext) {
-  client.addSurface("usage", UsageSurface);
+  client.addSurface("keys", KeysSurface);
   client.addSidebarItem({
-    id: "usage",
-    title: "OpenCode Usage",
-    icon: "Gauge",
-    surface: "usage",
-  });
-
-  client.addWorkspacePanel({
-    id: "usage-bar",
-    title: "OpenCode Usage",
-    icon: "Gauge",
-    context: "workspace",
-    Component: UsageBarPanel,
+    id: "keys",
+    title: "OpenCode Keys Handler",
+    icon: "Key",
+    surface: "keys",
   });
 
   client.addCommandCenterItem({
-    id: "open-opencode-usage",
-    title: "OpenCode Usage",
-    icon: "Gauge",
-    keywords: ["opencode", "usage", "credits", "quota", "rolling"],
+    id: "open-opencode-keys",
+    title: "OpenCode Keys Handler",
+    icon: "Key",
+    keywords: ["opencode", "keys", "api", "switch"],
     context: "global",
     onSelect({ openSurface }) {
-      openSurface("usage");
-    },
-  });
-
-  client.addCommandCenterItem({
-    id: "open-opencode-usage-bar",
-    title: "OpenCode Usage bar",
-    icon: "Gauge",
-    keywords: ["opencode", "usage", "quota", "bar"],
-    context: "workspace",
-    onSelect({ openPanel }) {
-      openPanel("usage-bar");
+      openSurface("keys");
     },
   });
 
