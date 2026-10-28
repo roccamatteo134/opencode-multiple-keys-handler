@@ -88,6 +88,7 @@ export function KeysSurface({ theme, layout }: PluginSurfaceProps) {
     try {
       const res = await switchRpc({ id: key.id });
       if (!res.ok) setError(res.error ?? "Errore durante lo switch.");
+      else if (res.reloadWarning) setError(res.reloadWarning);
       await refresh();
     } finally {
       setSwitching(false);
@@ -189,8 +190,8 @@ export function KeysSurface({ theme, layout }: PluginSurfaceProps) {
 
       {keys.length > 0 ? (
         <Text style={styles.hint}>
-          Tocco su una key per attivarla (scrive ~/.local/share/opencode/auth.json). Riavvia le
-          sessioni opencode/Paseo già aperte: la key è letta all'avvio.
+          Tocco su una key per attivarla (scrive ~/.local/share/opencode/auth.json). Le
+          sessioni opencode attive vengono ricaricate in automatico e rileggono la key.
         </Text>
       ) : (
         <Text style={styles.hint}>

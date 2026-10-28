@@ -66,6 +66,8 @@ export type KeySwitchInput = z.input<typeof keySwitchInputSchema>;
 export const keySwitchOutputSchema = z.object({
   ok: z.boolean(),
   error: z.string().optional(),
+  reloaded: z.number().optional(),
+  reloadWarning: z.string().optional(),
 });
 export type KeySwitchOutput = z.output<typeof keySwitchOutputSchema>;
 

@@ -1,6 +1,7 @@
-import { chmodSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { chmodSync, copyFileSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import path from "path";
+import type { PluginHandlerContext } from "@getpaseo/plugin/server";
 import type {
   KeyDeleteInput,
   KeyDeleteOutput,
@@ -95,16 +96,51 @@ function getActiveOpenCodeKey(): string | undefined {
   return readOpenCodeAuth()?.["opencode-go"]?.key;
 }
 
-function setActiveOpenCodeKey(key: string): void {
-  const auth = readOpenCodeAuth() ?? {};
-  auth["opencode-go"] = { type: "api", key };
-  mkdirSync(path.dirname(OPENCODE_AUTH_PATH), { recursive: true });
-  writeFileSync(OPENCODE_AUTH_PATH, JSON.stringify(auth, null, 2), "utf8");
+function writeJsonAtomic(filePath: string, value: unknown): void {
+  mkdirSync(path.dirname(filePath), { recursive: true });
+  const tmp = `${filePath}.${process.pid}.tmp`;
+  writeFileSync(tmp, JSON.stringify(value, null, 2), "utf8");
   try {
-    chmodSync(OPENCODE_AUTH_PATH, 0o600);
+    chmodSync(tmp, 0o600);
   } catch {
     /* Windows: no-op */
   }
+  renameSync(tmp, filePath);
+}
+
+function setActiveOpenCodeKey(key: string): void {
+  let raw: string | undefined;
+  try {
+    raw = readFileSync(OPENCODE_AUTH_PATH, "utf8");
+  } catch {
+    raw = undefined; /* file mancante: si parte da oggetto vuoto */
+  }
+  let auth: Record<string, unknown>;
+  if (raw === undefined) {
+    auth = {};
+  } else {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (typeof parsed !== "object" || parsed === null) throw new Error("auth.json non valido");
+      auth = parsed as Record<string, unknown>;
+    } catch {
+      /* Mai azzerare le credenziali altrui su file corrotto: backup + abort */
+      const bak = `${OPENCODE_AUTH_PATH}.corrupt-${Date.now()}.bak`;
+      try {
+        copyFileSync(OPENCODE_AUTH_PATH, bak);
+      } catch {
+        /* best effort */
+      }
+      throw new Error(`auth.json illeggibile (backup in ${bak}). Nessuna modifica applicata.`);
+    }
+  }
+  const prev = auth["opencode-go"];
+  auth["opencode-go"] = {
+    ...(typeof prev === "object" && prev !== null ? prev : {}),
+    type: "api",
+    key,
+  };
+  writeJsonAtomic(OPENCODE_AUTH_PATH, auth);
 }
 
 export function getKeys(): KeysGetOutput {
@@ -157,7 +193,10 @@ export function deleteKey(input: KeyDeleteInput): KeyDeleteOutput {
   return { ok: true };
 }
 
-export function switchKey(input: KeySwitchInput): KeySwitchOutput {
+export async function switchKey(
+  input: KeySwitchInput,
+  context: PluginHandlerContext,
+): Promise<KeySwitchOutput> {
   const config = migrateConfig(readConfig());
   const key = (config.accounts ?? []).find((k) => k.id === input.id);
   if (!key) return { ok: false, error: "Key non trovata." };
@@ -169,5 +208,31 @@ export function switchKey(input: KeySwitchInput): KeySwitchOutput {
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
-  return { ok: true };
+  /* Hot-switch: `opencode serve` legge le credenziali all'avvio e ignora le
+     scritture out-of-band su auth.json. Riapre le sessioni opencode attive
+     così i nuovi processi rileggono la key appena scritta. */
+  let reloaded = 0;
+  const reloadErrors: string[] = [];
+  try {
+    const { entries } = await context.paseo.agents.list({});
+    for (const { agent } of entries) {
+      if (agent.provider !== "opencode") continue;
+      try {
+        await context.paseo.agents.ref(agent.id).reload();
+        reloaded++;
+      } catch (err) {
+        reloadErrors.push(`${agent.id}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+  } catch (err) {
+    reloadErrors.push(`lista agenti: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  if (reloadErrors.length > 0) {
+    return {
+      ok: true,
+      reloaded,
+      reloadWarning: `Key scritta, ma ${reloadErrors.length} sessioni non ricaricate (riavvia Paseo): ${reloadErrors.slice(0, 3).join("; ")}`,
+    };
+  }
+  return { ok: true, reloaded };
 }
