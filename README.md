@@ -1,31 +1,30 @@
-# OpenCode Keys Handler
+# OpenCode Multiple Keys Handler
 
-Plugin [Paseo](https://paseo.sh) per gestire più **API key** di
-[opencode.ai](https://opencode.ai) e passare dall'una all'altra con un tocco.
+[Paseo](https://paseo.sh) plugin to manage multiple
+[opencode.ai](https://opencode.ai) API keys and switch the active one in one
+tap — from the sidebar, the command center, or the CLI.
 
-Nessun monitoraggio dei consumi: solo configurazione delle key e switch della key
-attiva in `~/.local/share/opencode/auth.json` (la voce `opencode-go`).
+No usage tracking: only key configuration and switching of the active key in
+`~/.local/share/opencode/auth.json` (the `opencode-go` entry).
 
-> **Attenzione**: i plugin Paseo sono codice trusted ed eseguono *senza sandbox*
-> sulla macchina del daemon (accesso a file, processi, rete). Installa solo plugin
-> di cui ti fidi e verifica il sorgente.
+> **Note:** Paseo plugins are trusted code and run *without sandbox* on the
+> daemon machine (file, process and network access). Install only plugins you
+> trust and review the source.
 
----
+## Requirements
 
-## Requisiti
-
-1. **Paseo** con i plugin abilitati: `~/.paseo/config.json` → `"pluginsEnabled": true`
-   (oppure **Settings → Plugins → Enable plugins**).
-2. **CLI Paseo con il comando `plugin`**:
+1. **Paseo** with plugins enabled: `~/.paseo/config.json` →
+   `"pluginsEnabled": true` (or **Settings → Plugins → Enable plugins**).
+2. **Paseo CLI with the `plugin` command**:
 
    ```bash
    npm install -g @getpaseo/cli@0.5.0-beta.4
    paseo plugin --help
    ```
 
-3. Una o più **API key** opencode.ai (`sk-...`), da opencode.ai → **API Keys**.
+3. One or more **opencode.ai API keys** (`sk-...`) from opencode.ai → **API Keys**.
 
-## Installazione
+## Install
 
 ```bash
 npm install
@@ -36,54 +35,61 @@ paseo plugin ls            # → STATUS running
 
 In VSCode: **Terminal → Run Task…** → `npm: install (paseo daemon)`.
 
-> Se il daemon gira su un'altra macchina, installa da lì (o usa `--host <url>`).
+> If the daemon runs on another machine, install from there (or use
+> `--host <url>`).
 
-## Uso
+## Usage
 
-1. Apri **OpenCode Keys Handler** nella barra laterale (icona chiave) o da **Ctrl+K**.
-2. **+ Key** → nome + API key → **Salva**. Ripeti per ogni chiave.
-3. **Tocca una key** per renderla attiva: il plugin riscrive `opencode-go` in
-   `~/.local/share/opencode/auth.json`. Quella già attiva è evidenziata.
-4. **Configura** modifica la key attiva (la API key si può lasciare vuota per non
-   cambiarla); **Elimina** la rimuove dalla lista.
+1. Open **OpenCode Keys Handler** in the sidebar (key icon) or via **Ctrl+K**.
+2. **+ Key** → name + API key → **Save**. Repeat for each key.
+3. **Tap a key** to make it active: the plugin rewrites `opencode-go` in
+   `~/.local/share/opencode/auth.json`. The active one is highlighted.
+4. **Edit** changes the active key (the API key field can be left empty to
+   keep the current value); **Delete** removes it from the list.
 
-Riavvia opencode (o il daemon Paseo) dopo lo switch: la key viene riletta all'avvio.
+Restart opencode (or the Paseo daemon) after switching: the key is read at
+startup. Switching also tries a hot-reload of running `opencode` sessions;
+if some sessions fail to reload you'll get a warning telling you to restart.
 
-Le key restano sul daemon in `~/.paseo/opencode-usage.json` (chmod 600) e non vengono
-mai esposte al client. I campi legacy della vecchia versione (cookie/workspaceId) vengono
-scartati al primo salvataggio.
+## Security
 
-## Switch da CLI
+- Keys are stored only on the daemon in `~/.paseo/opencode-usage.json`
+  (`chmod 600`) and are never sent to the client (the UI only sees
+  names + masked status).
+- Corrupt `auth.json` is never wiped: the plugin backs it up
+  (`auth.json.corrupt-<ts>.bak`) and aborts instead.
+- The CLI masks keys (`sk-ab12...9f8e`).
 
-`scripts/switch-opencode-key.ps1` (installabile in `~/.local/bin`) legge le key dalla
-stessa config:
+## Switch from the CLI
 
-```bash
-switch-opencode-key                # passa alla key successiva (toggle)
-switch-opencode-key status         # mostra la key attiva e la lista
-switch-opencode-key to 1|2         # attiva la key all'indice N
+`scripts/switch-opencode-key.ps1` (installable in `~/.local/bin`) reads the
+keys from the same config:
+
+```powershell
+switch-opencode-key           # go to the next key (toggle)
+switch-opencode-key status    # show the active key and the list
+switch-opencode-key to 1|2    # activate the key at index N
 ```
 
-## Sviluppo
+## Development
 
 ```bash
 npm run typecheck
-npm run reload             # ricompila e ricarica il plugin nel daemon
+npm run reload             # rebuild and reload the plugin in the daemon
 npm run logs
-npm run remove             # rimuove la config dal daemon (non tocca i sorgenti)
+npm run remove             # removes the daemon config (sources untouched)
 ```
 
-## Struttura
+## Structure
 
-| File                 | Contenuto                                      |
-| -------------------- | ---------------------------------------------- |
-| `index.client.tsx`   | Contributi UI (surface, sidebar, command center) |
-| `index.server.ts`    | Handler RPC                                    |
-| `shared/keys.ts`     | Contratti RPC zod + tipi                       |
-| `server/keys.ts`     | Persistenza key + scrittura di `auth.json`     |
-| `client/keys.tsx`    | Surface: lista key, switch, form               |
+| File | Content |
+| ---- | ------- |
+| `index.client.tsx` | UI contributions (surface, sidebar, command center) |
+| `index.server.ts` | RPC handlers |
+| `shared/keys.ts` | zod RPC contracts + types |
+| `server/keys.ts` | Key persistence + `auth.json` writing |
+| `client/keys.tsx` | Surface: key list, switch, form |
 
-## Riferimenti
+## References
 
-- Docs plugin Paseo: <https://paseo.sh/docs/plugins>
-- Estensione VSCode con la stessa logica (repo sorella): `vscode-opencode-usage`
+- Paseo plugin docs: <https://paseo.sh/docs/plugins>
